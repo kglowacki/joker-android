@@ -3,6 +3,8 @@ package com.mobicouncil.joker;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
@@ -42,6 +44,9 @@ public class MainActivity extends AppCompatActivity implements
 
     private static final int RC_SIGN_IN = 9001;
 
+    @BindView(R.id.drawer_layout)
+    DrawerLayout mDrawerLayout;
+
     @BindView(R.id.toolbar)
     Toolbar mToolbar;
 
@@ -72,6 +77,8 @@ public class MainActivity extends AppCompatActivity implements
     @BindView(R.id.tag_group)
     TagView tagView;
 
+    private ActionBarDrawerToggle mDrawerToggle;
+
     private JokeAdapter mAdapter;
 
     private JokeService jokeService;
@@ -86,6 +93,12 @@ public class MainActivity extends AppCompatActivity implements
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
         setSupportActionBar(mToolbar);
+
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout, mToolbar, R.string.open_drawer, R.string.close_drawer);
+        mDrawerToggle.setDrawerIndicatorEnabled(true);
+        mDrawerLayout.addDrawerListener(mDrawerToggle);
+        mDrawerToggle.syncState();
 
         //jokes
         final LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);

@@ -12,4 +12,8 @@
     <string name="default_notification_channel_name" translatable="true">New Jokes</string>
 
     <string name="message_no_results">Oops, couldn\'t find any results\nthat matched your filter</string>
+
+    <string name="open_drawer">Menu opened</string>
+    <string name="close_drawer">Menu closed</string>
+
 </resources>

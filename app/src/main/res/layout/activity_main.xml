@@ -21,11 +21,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="?attr/colorPrimary"
-        android:theme="@style/AppTheme"
-        app:logo="@drawable/ic_add_white_24px"
+        app:theme="@style/AppTheme.Toolbar"
         app:popupTheme="@style/Theme.AppCompat.Light.DarkActionBar"
         app:title="@string/app_name"
-        app:titleMarginStart="24dp"
         app:titleTextColor="@android:color/white" />
 
     <android.support.v7.widget.RecyclerView

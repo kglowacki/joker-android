@@ -11,6 +11,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.ListenerRegistration;
+import com.google.firebase.iid.FirebaseInstanceId;
 import com.mobicouncil.joker.model.Auth;
 import com.mobicouncil.joker.model.Joke;
 import com.mobicouncil.joker.model.Tag;
@@ -95,14 +96,24 @@ public class JokeService {
                         Auth.Profile profile = documentSnapshot.toObject(Auth.Profile.class);
                         auth.onNext(Auth.create(firebaseAuth.getCurrentUser(), profile));
                     } else {
-                        profileRef.set(new HashMap<>());
+                        profileRef.set(auth.getValue().getProfile());
                     }
+                    updateTokenIfNeeded(); //TODO how to handle re-auth (two users on the same device)?
                 } else {
                     onError("cannot load user profile", task.getException());
                 }
             });
         } else {
             auth.onNext(auth.getValue().withUser(null));
+        }
+    }
+
+    private void updateTokenIfNeeded() {
+        String token = FirebaseInstanceId.getInstance().getToken();
+        if (token != null && !auth.getValue().getProfile().getNotificationTokens().getOrDefault(token, false)) {
+            Log.d(TAG, "persist ID token: " + token);
+            auth.getValue().getProfile().getNotificationTokens().put(token, true);
+            persistProfile();
         }
     }
 

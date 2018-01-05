@@ -70,6 +70,7 @@ public class Auth {
 
     public static class Profile {
         private final Filter filter;
+        private final Map<String,Boolean> notificationTokens = new HashMap();
 
         public Profile() {
             this(new Filter());
@@ -85,6 +86,10 @@ public class Auth {
 
         public Profile withFilter(Filter filter) {
             return new Profile(filter);
+        }
+
+        public Map<String, Boolean> getNotificationTokens() {
+            return notificationTokens;
         }
     }
 

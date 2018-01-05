@@ -5,15 +5,15 @@
     android:layout_height="wrap_content"
     android:background="?attr/selectableItemBackground"
     android:orientation="vertical"
-    android:padding="8dp">
+    android:paddingHorizontal="12dp"
+    android:paddingVertical="24dp">
 
     <TextView
         android:id="@+id/joke_text"
         style="@style/AppTheme.Body1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:ellipsize="end"
+        android:ellipsize="none"
         tools:text="Foo's Bar" />
-
 
 </RelativeLayout>
