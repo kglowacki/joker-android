@@ -1,14 +1,23 @@
 package com.mobicouncil.joker.adapter;
 
+import android.support.annotation.NonNull;
 import android.util.Log;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.ListenerRegistration;
 import com.mobicouncil.joker.model.Auth;
 import com.mobicouncil.joker.model.Joke;
 import com.mobicouncil.joker.model.Tag;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -62,7 +71,8 @@ public class JokeService {
     public final BehaviorSubject<Boolean> loading = BehaviorSubject.createDefault(false);
     public final BehaviorSubject<JokesErrorEvent> errors = BehaviorSubject.create();
 
-    private final FirebaseAuth.AuthStateListener authStateListener = firebaseAuth -> auth.onNext(auth.getValue().withUser(firebaseAuth.getCurrentUser()));
+    private final FirebaseAuth.AuthStateListener authStateListener = this::onAuthChanged;
+    private ListenerRegistration userProfileSub;
 
     public JokeService() {
         FirebaseFirestore.setLoggingEnabled(true);
@@ -72,14 +82,40 @@ public class JokeService {
         //loadJokes(false);
         loadTags();
         FirebaseAuth.getInstance().addAuthStateListener(authStateListener);
+        auth.subscribe(v->loadJokes(false)); //TODO unsub on stop
+    }
 
-        this.auth.subscribe(v->{
-            this.loadJokes(false);
-        });
+    private void onAuthChanged(final FirebaseAuth firebaseAuth) {
+        if (firebaseAuth.getUid() != null) {
+            DocumentReference profileRef = FirebaseFirestore.getInstance().collection("users").document(firebaseAuth.getUid());
+            profileRef.get().addOnCompleteListener(task -> {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot documentSnapshot = task.getResult();
+                    if (documentSnapshot.exists()) {
+                        Auth.Profile profile = documentSnapshot.toObject(Auth.Profile.class);
+                        auth.onNext(Auth.create(firebaseAuth.getCurrentUser(), profile));
+                    } else {
+                        profileRef.set(new HashMap<>());
+                    }
+                } else {
+                    onError("cannot load user profile", task.getException());
+                }
+            });
+        } else {
+            auth.onNext(auth.getValue().withUser(null));
+        }
+    }
+
+    private void unsubUserProfile() {
+        if (userProfileSub != null) {
+            userProfileSub.remove();
+            userProfileSub = null;
+        }
     }
 
     public void stop() {
         FirebaseAuth.getInstance().removeAuthStateListener(authStateListener);
+        unsubUserProfile();
     }
 
     public void loadMore() {
@@ -146,8 +182,23 @@ public class JokeService {
         FirebaseAuth.getInstance().signOut();
     }
 
+    private void persistProfile() {
+        Auth auth = this.auth.getValue();
+        if (auth.isSignedIn()) {
+            DocumentReference profileRef = FirebaseFirestore.getInstance().collection("users").document(auth.getUser().getUid());
+            profileRef.set(auth.getProfile()).addOnCompleteListener(task -> {
+                if (task.isSuccessful()) {
+                    Log.i(TAG, "profile persisted");
+                } else {
+                    onError("can't store profile", task.getException());
+                }
+            });
+        }
+    }
+
     public void toggleTag(String tagId) {
         Auth auth = this.auth.getValue();
         this.auth.onNext(auth.withProfile(auth.getProfile().withFilter(auth.getProfile().getFilter().withToggledTag(tagId))));
+        persistProfile();
     }
 }

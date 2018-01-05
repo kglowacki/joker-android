@@ -2,6 +2,7 @@ package com.mobicouncil.joker.model;
 
 import com.google.firebase.auth.FirebaseUser;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -51,9 +52,9 @@ public class Auth {
         }
 
         public Filter withToggledTag(String tagId) {
-            Map<String,Object> tags = new HashMap<>(this.tags);
-            tags.put(tagId, !isTagSelected(tagId));
-            return new Filter(this.lang, tags);
+            //Map<String,Object> tags = new HashMap<>(this.tags);
+            //tags.put(tagId, !isTagSelected(tagId));
+            return new Filter(this.lang, Collections.singletonMap(tagId, !isTagSelected(tagId)));
         }
 
         public boolean isTagSelected(String tagId) {

@@ -119,7 +119,7 @@ public class MainActivity extends AppCompatActivity implements
         mJokesRecycler.setAdapter(mAdapter);
 
         //tags
-        mTagViewAdapter = new TagViewAdapter(tagView, tagId -> jokeService.toggleTag(tagId));
+        mTagViewAdapter = new TagViewAdapter(this, tagView, tagId -> jokeService.toggleTag(tagId));
     }
 
     @Override
@@ -161,6 +161,7 @@ public class MainActivity extends AppCompatActivity implements
                         if (auth.getUser().getPhotoUrl() != null) {
                             Glide.with(mUserAvatarView.getContext())
                                     .load(auth.getUser().getPhotoUrl())
+                                    .bitmapTransform(new RoundedCornersTransformation(this,mUserAvatarView.getLayoutParams().width/2,0))
                                     .into(mUserAvatarView);
                         }
                         mUserNameView.setText(auth.getUser().getDisplayName());

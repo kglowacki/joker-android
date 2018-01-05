@@ -91,9 +91,4 @@
         <item name="android:textColor">@color/greySecondary</item>
     </style>
 
-    <style name="AppTheme.PizzaGuy">
-        <item name="android:layout_width">wrap_content</item>
-        <item name="android:layout_height">150dp</item>
-    </style>
-
 </resources>
